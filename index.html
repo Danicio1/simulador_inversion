@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investment Simulator</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" integrity="sha384-g9t10ZSPcVTx4u0n+7V+xuvjZQI0Mhib9BzSbXHehfwrNLZpAqV0LP3K8AQFAU1n" crossorigin="anonymous"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="top-bar">
+    <h1>Investment Simulator</h1>
+    <div class="theme-toggle">
+      <label for="theme-switch">Modo oscuro</label>
+      <input type="checkbox" id="theme-switch" aria-label="Cambiar modo oscuro" />
+    </div>
+  </header>
+
+  <main>
+    <section class="card" aria-labelledby="parameters-title">
+      <h2 id="parameters-title">Parámetros</h2>
+      <form id="parameters-form" novalidate>
+        <div class="field">
+          <label for="initial-capital">Capital inicial (€)</label>
+          <input type="number" id="initial-capital" name="initialCapital" min="0" step="0.01" required />
+          <span class="hint">Introduce un número mayor o igual a 0.</span>
+          <span class="error" aria-live="polite"></span>
+        </div>
+        <div class="field">
+          <label for="monthly-contribution">Aportación mensual (€)</label>
+          <input type="number" id="monthly-contribution" name="monthlyContribution" min="0" step="0.01" required />
+          <span class="hint">Introduce un número mayor o igual a 0.</span>
+          <span class="error" aria-live="polite"></span>
+        </div>
+        <div class="field">
+          <label for="gross-return">Rentabilidad anual bruta (% anual)</label>
+          <input type="number" id="gross-return" name="grossReturn" step="0.01" required />
+          <span class="hint">Puede incluir decimales (ej. 7,5).</span>
+          <span class="error" aria-live="polite"></span>
+        </div>
+        <div class="field">
+          <label for="annual-fee">Comisión anual (% anual)</label>
+          <input type="number" id="annual-fee" name="annualFee" min="0" step="0.01" required />
+          <span class="hint">Simula el TER (se resta a la rentabilidad).</span>
+          <span class="error" aria-live="polite"></span>
+        </div>
+        <div class="field">
+          <label for="inflation">Inflación anual (% anual)</label>
+          <input type="number" id="inflation" name="inflation" min="0" step="0.01" required />
+          <span class="hint">Se usa para obtener valores en euros constantes.</span>
+          <span class="error" aria-live="polite"></span>
+        </div>
+        <div class="field">
+          <label for="years">Duración (años)</label>
+          <input type="number" id="years" name="years" min="1" max="50" step="1" required />
+          <span class="hint">Introduce un entero entre 1 y 50.</span>
+          <span class="error" aria-live="polite"></span>
+        </div>
+        <div class="buttons">
+          <button type="submit" class="primary">Calcular</button>
+          <button type="button" id="clear-button">Limpiar</button>
+          <button type="button" id="export-button" disabled>Exportar CSV</button>
+          <button type="button" id="save-button">Guardar parámetros</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="results-title">
+      <h2 id="results-title">Resultados</h2>
+      <div class="kpi-grid" aria-live="polite">
+        <article class="kpi">
+          <h3>Valor final nominal</h3>
+          <p id="kpi-nominal">—</p>
+        </article>
+        <article class="kpi">
+          <h3>Valor final ajustado por inflación</h3>
+          <p id="kpi-real">—</p>
+        </article>
+        <article class="kpi">
+          <h3>Total aportado</h3>
+          <p id="kpi-contributed">—</p>
+        </article>
+        <article class="kpi">
+          <h3>Intereses acumulados</h3>
+          <p id="kpi-growth">—</p>
+        </article>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="growth-chart" aria-label="Evolución mensual de la cartera" role="img"></canvas>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="table-title">
+      <h2 id="table-title">Detalle mensual</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Mes</th>
+              <th scope="col">Aportación acumulada</th>
+              <th scope="col">Intereses acumulados</th>
+              <th scope="col">Valor total</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+      <div class="pagination" aria-label="Paginación de la tabla">
+        <button type="button" id="prev-page" disabled>Anterior</button>
+        <span id="page-info">Página 0 / 0</span>
+        <button type="button" id="next-page" disabled>Siguiente</button>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="notes-title">
+      <h2 id="notes-title">Notas y supuestos</h2>
+      <ul>
+        <li>Las aportaciones se realizan al final de cada mes.</li>
+        <li>La capitalización de intereses es mensual.</li>
+        <li>La inflación se aplica al final del período para calcular valores en euros constantes.</li>
+        <li>La fórmula utilizada es: FV = P(1 + r<sub>m</sub>)<sup>n</sup> + C \* \[( (1 + r<sub>m</sub>)<sup>n</sup> - 1 ) / r<sub>m</sub>\]</li>
+      </ul>
+    </section>
+
+    <section class="card" aria-labelledby="instructions-title">
+      <h2 id="instructions-title">Instrucciones de uso y despliegue</h2>
+      <ol>
+        <li>Rellena los parámetros y pulsa <strong>Calcular</strong> para ver resultados.</li>
+        <li>Usa <strong>Guardar parámetros</strong> para almacenar tus datos en este navegador.</li>
+        <li>Pulsa <strong>Exportar CSV</strong> para descargar la serie mensual.</li>
+        <li>Para probar localmente, abre directamente <code>index.html</code> en tu navegador.</li>
+        <li>Para desplegar en GitHub Pages:
+          <ul>
+            <li>Crea un repositorio con estos archivos.</li>
+            <li>Sube los cambios y habilita GitHub Pages desde la configuración del repositorio.</li>
+            <li>Selecciona la rama principal y la carpeta raíz como fuente.</li>
+          </ul>
+        </li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Investment Simulator — sin backend, todo calculado en tu navegador.</p>
+  </footer>
+</body>
+</html>
