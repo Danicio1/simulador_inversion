@@ -207,18 +207,10 @@ function showErrors(errors) {
 }
 
 function formatCurrency(value) {
-  if (!Number.isFinite(value)) {
-    return '—';
-  }
-
   return numberFormatter.format(value);
 }
 
 function formatNumber(value) {
-  if (!Number.isFinite(value)) {
-    return '';
-  }
-
   return numberFormatterNoCurrency.format(value);
 }
 
@@ -230,11 +222,6 @@ function updateKpis(summary) {
 }
 
 function createChart(series) {
-  if (typeof Chart === 'undefined') {
-    console.warn('Chart.js no disponible, se omite el gráfico.');
-    return;
-  }
-
   const ctx = document.getElementById('growth-chart');
   const labels = series.map((item) => `Mes ${item.month}`);
   const contributions = series.map((item) => item.totalContributed);
@@ -389,8 +376,8 @@ function handleFormSubmit(event) {
   const { series, summary } = generateMonthlySeries(values);
   state.series = series;
   updateKpis(summary);
-  renderTable(1);
   createChart(series);
+  renderTable(1);
   exportButton.disabled = false;
 }
 

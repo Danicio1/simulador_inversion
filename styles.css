@@ -145,17 +145,12 @@ button:hover:not(:disabled) {
 .kpi-grid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
 .kpi {
   background: rgba(37, 99, 235, 0.07);
   border-radius: 1rem;
-  padding: 1rem 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  min-height: 120px;
+  padding: 1rem;
 }
 
 body.dark .kpi {
@@ -170,11 +165,8 @@ body.dark .kpi {
 
 .kpi p {
   margin: 0;
-  font-size: clamp(1rem, 2.4vw, 1.4rem);
+  font-size: 1.3rem;
   font-weight: 700;
-  line-height: 1.35;
-  word-break: break-word;
-  overflow-wrap: anywhere;
 }
 
 .chart-wrapper {
@@ -231,7 +223,7 @@ th {
   }
 
   .kpi-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
